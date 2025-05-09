@@ -1,0 +1,46 @@
+{
+  "name": "HRMS",
+  "version": "1.0.0",
+  "main": "main.js",
+  "authors": "test",
+  "description": "test",
+  "scripts": {
+    "start": "nodemon --watch * --exec electron .",
+    "build": "electron-builder -c.extraMetadata.main=main.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "electron": "25.3.0",
+    "electron-builder": "24.4.0",
+    "nodemon": "^3.1.10"
+  },
+  "dependencies": {
+    "electron-squirrel-startup": "^1.0.1"
+  },
+  "build": {
+    "appId": "com.example.myapp",
+    "productName": "HRMS",
+    "files": [
+      "**/*"
+    ],
+    "directories": {
+      "buildResources": "assets"
+    },
+    "win": {
+      "target": "nsis",
+      "artifactName": "HRMS.${ext}",
+      "icon": "favicon.png"
+    },
+    "mac": {
+      "target": "dmg",
+      "artifactName": "HRMS.${ext}",
+      "icon": "favicon.png"
+    },
+    "extraResources": [
+      "resources/preload.js",
+      "resources/timer-worker.js"
+    ]
+  }
+}
