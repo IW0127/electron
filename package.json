@@ -21,10 +21,11 @@
     "electron-squirrel-startup": "^1.0.1"
   },
   "build": {
-    "appId": "com.example.myapp",
+    "appId": "com.electron.${name}",
     "productName": "HRMS",
     "files": [
-      "**/*"
+      "**/*",
+      "resources/**/*"
     ],
     "directories": {
       "buildResources": "assets"
