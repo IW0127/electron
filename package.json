@@ -35,8 +35,7 @@
     },
     "mac": {
       "target": "dmg",
-      "artifactName": "HRMS.${ext}",
-      "icon": "favicon.png"
+      "artifactName": "HRMS.${ext}"
     },
     "extraResources": [
       "resources/preload.js",
