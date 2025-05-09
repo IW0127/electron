@@ -36,8 +36,11 @@
       "icon": "favicon.png"
     },
     "mac": {
-      "target": "dmg",
-      "artifactName": "HRMS.${ext}"
+      "artifactName": "HRMS.${ext}",
+      "target": [
+        "dmg"
+      ],
+      "category": "public.app-category.utilities"
     },
     "asarUnpack": [
       "resources/preload.js",
