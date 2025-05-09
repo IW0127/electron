@@ -7,7 +7,7 @@
   "scripts": {
     "start": "nodemon --watch * --exec electron .",
     "build": "electron-builder -w",
-    "mac": "electron-builder -m -c.extraMetadata.main=main.js"
+    "mac": "electron-builder -m"
   },
   "keywords": [],
   "author": "",
