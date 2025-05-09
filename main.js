@@ -7,7 +7,7 @@ let worker;
 let mainWindow;
 
 const filePath = app.isPackaged ? process.resourcesPath : __dirname;
-
+console.log(app.isPackaged)
 const workerpath = path.join(filePath, 'resources', 'timer-worker.js');
 
 app.on('ready', () => {
