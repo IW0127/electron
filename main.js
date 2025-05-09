@@ -1,12 +1,12 @@
 const { Worker } = require('worker_threads');
 const { app, BrowserWindow, screen, ipcMain, net, Menu } = require('electron');
-const common = require('./resources/function');
+const common = require('./common/function');
 const path = require('path');
 let worker;
 
 let mainWindow;
 
-const filePath = `${__dirname}/resources`;
+const filePath = `${__dirname}/common`;
 const workerpath = path.join(filePath, 'timer-worker.js');
 app.on('ready', () => {
     /* worker thread start */
