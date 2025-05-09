@@ -38,6 +38,10 @@
       "target": "dmg",
       "artifactName": "HRMS.${ext}"
     },
+    "asarUnpack": [
+      "resources/preload.js",
+      "resources/timer-worker.js"
+    ],
     "extraResources": [
       "resources/preload.js",
       "resources/timer-worker.js"
