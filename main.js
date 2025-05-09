@@ -27,7 +27,7 @@ app.on('ready', () => {
         if (BrowserWindow.getAllWindows().length === 0) createWindow();
     });
 });
-
+console.log('app ready');
 app.on('window-all-closed', () => {
     console.log('window-all-closed');
     worker.terminate();
