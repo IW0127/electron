@@ -6,10 +6,8 @@ let worker;
 
 let mainWindow;
 
-const filePath = app.isPackaged ? process.resourcesPath : __dirname;
-console.log(app.isPackaged)
-const workerpath = path.join(filePath, 'resources', 'timer-worker.js');
-
+const filePath = `${__dirname}/resources`;
+const workerpath = path.join(filePath, 'timer-worker.js');
 app.on('ready', () => {
     /* worker thread start */
     (async () => {
@@ -59,8 +57,7 @@ async function createWindow() {
         minWidth: width,
         minHeight: height,
         webPreferences: {
-            preload: path.join(__dirname, 'resources', 'preload.js'),
-            // devTools: true,
+            preload: path.join(filePath, 'preload.js'),            // devTools: true,
             webviewTag: true
         },
     });

@@ -6,7 +6,7 @@
   "description": "test",
   "scripts": {
     "start": "nodemon --watch * --exec electron .",
-    "build": "electron-builder -mwl -c.extraMetadata.main=main.js",
+    "build": "electron-builder -w",
     "mac": "electron-builder -m -c.extraMetadata.main=main.js"
   },
   "keywords": [],
@@ -21,7 +21,7 @@
     "electron-squirrel-startup": "^1.0.1"
   },
   "build": {
-    "appId": "com.electron.${name}",
+    "appId": "com.electron.hrms",
     "productName": "HRMS",
     "files": [
       "**/*",
