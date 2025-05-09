@@ -6,7 +6,7 @@
   "description": "test",
   "scripts": {
     "start": "nodemon --watch * --exec electron .",
-    "build": "electron-builder -c.extraMetadata.main=main.js"
+    "build": "electron-builder -mwl -c.extraMetadata.main=main.js"
   },
   "keywords": [],
   "author": "",
