@@ -24,8 +24,7 @@
     "appId": "com.electron.hrms",
     "productName": "HRMS",
     "files": [
-      "**/*",
-      "resources/**/*"
+      "**/*"
     ],
     "directories": {
       "buildResources": "assets"
@@ -40,15 +39,8 @@
       "target": [
         "dmg"
       ],
-      "category": "public.app-category.utilities"
-    },
-    "asarUnpack": [
-      "resources/preload.js",
-      "resources/timer-worker.js"
-    ],
-    "extraResources": [
-      "resources/preload.js",
-      "resources/timer-worker.js"
-    ]
+      "category": "public.app-category.utilities",
+      "icon": "favicon.png"
+    }
   }
 }
