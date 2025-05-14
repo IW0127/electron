@@ -1,4 +1,6 @@
 const os = require('os');
+const { net } = require('electron');
+
 
 exports.convertUTCToIST = (utcTimestampMs) => {
     const dateInIST = new Date(utcTimestampMs).toLocaleString("en-IN", {
@@ -24,4 +26,29 @@ exports.getSystemInfo = () => {
         tempDir: os.tmpdir(),
         networkInterfaces: os.networkInterfaces(),
     });
+};
+
+exports.commonErrorLog = async (log, empId, type = 'Error boundary') => {
+    const apiEndpoint = "https://testhrms-api.identixweb.com/node/admin_api";
+
+    const body = {
+        empId,
+        log: `${log}\n type:${type}`,
+    };
+    fetch(`${apiEndpoint}/reactErrorLog`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json; charset=UTF-8',
+        },
+        body: JSON.stringify(body),
+    })
+        .then((response) => {
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            console.log('hrms: Log created!');
+        })
+        .catch((error) => {
+            console.error('hrms:', error);
+        });
 };

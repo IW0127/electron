@@ -5,7 +5,7 @@
   "authors": "test",
   "description": "test",
   "scripts": {
-    "start": "nodemon --watch * --exec electron .",
+    "start": "nodemon --watch main.js --exec electron .",
     "build": "electron-builder -w",
     "mac": "electron-builder -m"
   },
