@@ -4,6 +4,7 @@
   "main": "main.js",
   "authors": "test",
   "description": "test",
+  "private": true,
   "scripts": {
     "start": "nodemon --watch main.js --exec electron .",
     "build": "electron-builder -w",
