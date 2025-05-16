@@ -119,7 +119,7 @@ async function createWindow() {
 }
 
 function contextMenu() {
-    tray = new Tray(path.join(__dirname, 'favicon.png'));
+    tray = new Tray(path.join(__dirname, 'icon', process.platform === 'win32' ? 'tray_icon.ico' : 'tray_icon_22x22.png'));
     const menu = Menu.buildFromTemplate([
         { label: 'Open', click: () => mainWindow ? mainWindow.show() : createWindow() },
         { label: 'Quit', click: () => app.quit() },
