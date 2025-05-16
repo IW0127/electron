@@ -7,12 +7,14 @@ let worker;
 
 let mainWindow;
 let tray;
+let isDownLoadWindowOpen = false;
 
 const filePath = `${__dirname}/common`;
 const workerpath = path.join(filePath, 'timer-worker.js');
 app.setAppUserModelId('HRMS');
 
 app.on('ready', () => {
+    autoUpdater.checkForUpdatesAndNotify();
     /* worker thread start */
     (async () => {
         try {
@@ -102,7 +104,7 @@ app.on('before-quit', (e) => {
             title: 'Quit App',
             message: 'Are you sure you want to quit the app?'
         });
-        if (choice === 0) {
+        if (choice === 0 && !isDownLoadWindowOpen) {
             e.preventDefault(); // Cancel quit
         } else {
             if (worker) {
@@ -160,8 +162,6 @@ function contextMenu() {
     tray.on('click', () => mainWindow.isVisible() ? mainWindow.hide() : mainWindow.show());
     tray.on('right-click', (_e, bounds) => tray.popUpContextMenu(menu, { x: bounds.x, y: bounds.y - 30 }));
 }
-
-autoUpdater.checkForUpdatesAndNotify()
 
 autoUpdater.on("update-downloaded", (_event, releaseNotes, releaseName) => {
     isDownLoadWindowOpen = true;
