@@ -62,11 +62,11 @@ app.on('ready', () => {
 
 
 
-    /* new Notification({
+    new Notification({
         title: 'HRMS App',
         body: 'You have a new message!',
         icon: path.join(__dirname, 'favicon.png')
-    }).show(); */
+    }).show();
 });
 // console.log(session);
 
