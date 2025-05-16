@@ -8,7 +8,7 @@
     "start": "nodemon --watch main.js --exec electron .",
     "build": "electron-builder -w",
     "mac": "electron-builder -m",
-    "publish": "set GH_TOKEN= && electron-builder -mw --publish always"
+    "publish": "set GH_TOKEN=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 && electron-builder -mw --publish always"
   },
   "keywords": [],
   "author": "",
