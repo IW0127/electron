@@ -17,6 +17,7 @@
   "devDependencies": {
     "electron": "25.3.0",
     "electron-builder": "24.4.0",
+    "electron-updater": "^6.6.2",
     "nodemon": "3.1.10"
   },
   "repository": {
@@ -24,6 +25,13 @@
     "url": "https://github.com/IW0127/electron"
   },
   "build": {
+    "publish": [
+      {
+        "provider": "github",
+        "owner": "IW0127",
+        "repo": "electron"
+      }
+    ],
     "appId": "com.electron.hrms",
     "productName": "HRMS",
     "files": [

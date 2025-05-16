@@ -2,6 +2,7 @@ const { Worker } = require('worker_threads');
 const { app, BrowserWindow, screen, ipcMain, net, Menu, Notification, powerMonitor, Tray, dialog } = require('electron');
 const common = require('./common/function');
 const path = require('path');
+const { autoUpdater } = require('electron-updater');
 let worker;
 
 let mainWindow;
@@ -106,11 +107,9 @@ app.on('before-quit', (e) => {
         } else {
             if (worker) {
                 worker.terminate();
-                worker = null;
             }
             if (mainWindow) {
                 mainWindow.destroy();
-                mainWindow =  null;
             }
             app.quit();
         }
@@ -161,3 +160,23 @@ function contextMenu() {
     tray.on('click', () => mainWindow.isVisible() ? mainWindow.hide() : mainWindow.show());
     tray.on('right-click', (_e, bounds) => tray.popUpContextMenu(menu, { x: bounds.x, y: bounds.y - 30 }));
 }
+
+autoUpdater.checkForUpdatesAndNotify()
+
+autoUpdater.on("update-downloaded", (_event, releaseNotes, releaseName) => {
+    isDownLoadWindowOpen = true;
+    const dialogOpts = {
+        type: 'info',
+        buttons: ['Restart'],
+        title: 'Application Update',
+        message: process.platform === 'win32' ? releaseNotes : releaseName,
+        detail: 'A new version has been downloaded. If you want to upgrade now, then click on the Restart button, or if you want to update later on then click on the above cross button to close it.',
+        cancelId: 1
+    };
+    dialog.showMessageBox(mainWindow, dialogOpts).then((returnValue) => {
+        if (returnValue.response === 0) {
+            isDownLoadWindowOpen = false;
+            autoUpdater.quitAndInstall();
+        }
+    });
+});
