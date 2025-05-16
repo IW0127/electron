@@ -17,7 +17,6 @@
   "devDependencies": {
     "electron": "25.3.0",
     "electron-builder": "24.4.0",
-    "electron-updater": "^6.6.2",
     "nodemon": "3.1.10"
   },
   "repository": {
@@ -53,5 +52,8 @@
       "category": "public.app-category.utilities",
       "icon": "favicon.png"
     }
+  },
+  "dependencies": {
+    "electron-updater": "^6.6.2"
   }
 }
