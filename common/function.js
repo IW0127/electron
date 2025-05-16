@@ -1,5 +1,5 @@
 const os = require('os');
-const { net } = require('electron');
+const { net, autoUpdater } = require('electron');
 
 
 exports.convertUTCToIST = (utcTimestampMs) => {
@@ -52,3 +52,25 @@ exports.commonErrorLog = async (log, empId, type = 'Error boundary') => {
             console.error('hrms:', error);
         });
 };
+/* console.log(autoUpdater.checkForUpdates());
+
+autoUpdater.setFeedURL({ url: 'https://your-update-server.com/updates/latest' });
+
+autoUpdater.on("update-downloaded", (_event, releaseNotes, releaseName) => {
+    isDownLoadWindowOpen = true;
+    const dialogOpts = {
+        type: 'info',
+        buttons: ['Restart'],
+        title: 'Application Update',
+        message: process.platform === 'win32' ? releaseNotes : releaseName,
+        detail: 'A new version has been downloaded. If you want to upgrade now, then click on the Restart button, or if you want to update later on then click on the above cross button to close it.',
+        cancelId: 1
+    };
+    dialog.showMessageBox(mainWindow, dialogOpts).then((returnValue) => {
+        if (returnValue.response === 0) {
+            isDownLoadWindowOpen = false;
+            autoUpdater.quitAndInstall();
+        }
+    });
+});
+ */

@@ -1,5 +1,5 @@
 const { Worker } = require('worker_threads');
-const { app, BrowserWindow, screen, ipcMain, net, Menu, Notification, powerMonitor, Tray } = require('electron');
+const { app, BrowserWindow, screen, ipcMain, net, Menu, Notification, powerMonitor, Tray, dialog } = require('electron');
 const common = require('./common/function');
 const path = require('path');
 let worker;
@@ -9,7 +9,6 @@ let tray;
 
 const filePath = `${__dirname}/common`;
 const workerpath = path.join(filePath, 'timer-worker.js');
-
 app.setAppUserModelId('HRMS');
 
 app.on('ready', () => {
@@ -59,11 +58,14 @@ app.on('ready', () => {
     app.on('activate', () => {
         if (BrowserWindow.getAllWindows().length === 0) createWindow();
     });
-    new Notification({
+
+
+
+    /* new Notification({
         title: 'HRMS App',
         body: 'You have a new message!',
         icon: path.join(__dirname, 'favicon.png')
-    }).show();
+    }).show(); */
 });
 // console.log(session);
 
@@ -74,10 +76,46 @@ app.on('session-end', (e) => {
 });
 
 app.on('window-all-closed', (e) => {
-    console.log('window-all-closed');
-    worker.terminate();
-    if (process.platform !== 'darwin') {
-        app.quit();
+    try {
+        console.log('window-all-closed');
+        /*  worker.terminate();
+         if (process.platform == 'darwin') {
+             console.log();
+             if (mainWindow) {
+                 mainWindow.destroy();
+             }
+             app.quit();
+         } */
+
+    } catch (error) {
+        console.log('sdkfjsdfjsdfjk', error);
+    }
+});
+
+app.on('before-quit', (e) => {
+    try {
+        const choice = dialog.showMessageBoxSync({
+            type: 'question',
+            buttons: ['Cancel', 'Quit'],
+            defaultId: 1,
+            title: 'Quit App',
+            message: 'Are you sure you want to quit the app?'
+        });
+        if (choice === 0) {
+            e.preventDefault(); // Cancel quit
+        } else {
+            if (worker) {
+                worker.terminate();
+                worker = null;
+            }
+            if (mainWindow) {
+                mainWindow.destroy();
+                mainWindow =  null;
+            }
+            app.quit();
+        }
+    } catch (error) {
+        console.log(error);
     }
 });
 
@@ -105,12 +143,8 @@ async function createWindow() {
     mainWindow.loadURL('https://testhrms.identixweb.com');
     // mainWindow.loadURL('http://localhost:3001');
     mainWindow.webContents.openDevTools();
-    mainWindow.hookWindowMessage(0x11, () => { // 0x11 == WM_QUERYENDSESSION
-        console.log('System shutdown or logoff detected (WM_QUERYENDSESSION)');
-        // Do cleanup here, e.g. save state
-    });
     mainWindow.on('close', (event) => {
-        console.log('Window closed');
+        console.log('Window closed', event);
         event.preventDefault(); // Prevent the default close action
         mainWindow.hide(); // Hide the window instead
     });
@@ -122,7 +156,7 @@ function contextMenu() {
     tray = new Tray(path.join(__dirname, 'icon', process.platform === 'win32' ? 'tray_icon.ico' : 'tray_icon_22x22.png'));
     const menu = Menu.buildFromTemplate([
         { label: 'Open', click: () => mainWindow ? mainWindow.show() : createWindow() },
-        { label: 'Quit', click: () => app.quit() },
+        { label: 'Quit', click: () => { mainWindow.destroy(); app.quit(); } },
     ]);
     tray.on('click', () => mainWindow.isVisible() ? mainWindow.hide() : mainWindow.show());
     tray.on('right-click', (_e, bounds) => tray.popUpContextMenu(menu, { x: bounds.x, y: bounds.y - 30 }));
