@@ -18,14 +18,14 @@ app.on('ready', () => {
     /* worker thread start */
     (async () => {
         try {
-            let data = await net.fetch('https://testhrms-api.identixweb.com/node/admin_api/getLocalTime');
+            /* let data = await net.fetch('https://testhrms-api.identixweb.com/node/admin_api/getLocalTime');
             data = await data.json();
             worker = new Worker(workerpath, { workerData: { serverNow: new Date(data.data).getTime() } });
             worker.on('message', ({ serverTime }) => {
                 if (mainWindow && !mainWindow.isDestroyed()) {
                     mainWindow.webContents.send('tick', new Date(serverTime));
                 }
-            });
+            }); */
         } catch (error) {
             console.error('Error fetching local time:', error);
             // Handle the error as needed, e.g., show a message to the user or retry the request
@@ -113,7 +113,6 @@ app.on('before-quit', (e) => {
             if (mainWindow) {
                 mainWindow.destroy();
             }
-            app.quit();
         }
     } catch (error) {
         console.log(error);
@@ -141,8 +140,8 @@ async function createWindow() {
             webviewTag: true
         },
     });
-    mainWindow.loadURL('https://testhrms.identixweb.com');
-    // mainWindow.loadURL('http://localhost:3001');
+    // mainWindow.loadURL('https://testhrms.identixweb.com');
+    mainWindow.loadURL('http://localhost:3001');
     mainWindow.webContents.openDevTools();
     mainWindow.on('close', (event) => {
         console.log('Window closed', event);
