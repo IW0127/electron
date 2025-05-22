@@ -3,6 +3,10 @@ const { app, BrowserWindow, screen, ipcMain, net, Menu, Notification, powerMonit
 const common = require('./common/function');
 const path = require('path');
 const { autoUpdater } = require('electron-updater');
+const log = require("electron-log");
+
+autoUpdater.logger = log;
+autoUpdater.logger.transports.file.level = "info";
 let worker;
 
 let mainWindow;
@@ -140,8 +144,8 @@ async function createWindow() {
             webviewTag: true
         },
     });
-    // mainWindow.loadURL('https://testhrms.identixweb.com');
-    mainWindow.loadURL('http://localhost:3001');
+    mainWindow.loadURL('https://testhrms.identixweb.com');
+    // mainWindow.loadURL('http://localhost:3001');
     mainWindow.webContents.openDevTools();
     mainWindow.on('close', (event) => {
         console.log('Window closed', event);
@@ -162,6 +166,33 @@ function contextMenu() {
     tray.on('right-click', (_e, bounds) => tray.popUpContextMenu(menu, { x: bounds.x, y: bounds.y - 30 }));
 }
 
+
+autoUpdater.on("update-available", () => {
+    autoUpdater.downloadUpdate();
+    log.info("Update available");
+    common.commonErrorLog('Update available', null, 'electron');
+});
+
+autoUpdater.on("update-not-available", () => {
+    log.info("No updates available");
+    common.commonErrorLog("No updates available", null, 'electron');
+
+});
+
+autoUpdater.on("error", (error) => {
+    log.error("Update error", error);
+    common.commonErrorLog(`Update error ${error.stack}`, null, 'electron');
+});
+
+autoUpdater.on('download-progress', (progressObj) => {
+    let log_message = "Download speed: " + progressObj.bytesPerSecond;
+    log_message = log_message + ' - Downloaded ' + progressObj.percent + '%';
+    log_message = log_message + ' (' + progressObj.transferred + "/" + progressObj.total + ')';
+    log.info(log_message);
+    common.commonErrorLog(`${log_message}`, null, 'electron');
+    // mainWindow.webContents.send('download-progress', progressObj.percent);
+});
+
 autoUpdater.on("update-downloaded", (_event, releaseNotes, releaseName) => {
     isDownLoadWindowOpen = true;
     const dialogOpts = {
@@ -172,10 +203,13 @@ autoUpdater.on("update-downloaded", (_event, releaseNotes, releaseName) => {
         detail: 'A new version has been downloaded. If you want to upgrade now, then click on the Restart button, or if you want to update later on then click on the above cross button to close it.',
         cancelId: 1
     };
-    dialog.showMessageBox(mainWindow, dialogOpts).then((returnValue) => {
-        if (returnValue.response === 0) {
-            isDownLoadWindowOpen = false;
-            autoUpdater.quitAndInstall();
-        }
-    });
+    common.commonErrorLog(`${releaseNotes}`, null, 'electron');
+    dialog.showMessageBox(mainWindow, dialogOpts)
+        .then((returnValue) => {
+            if (returnValue.response === 0) {
+                isDownLoadWindowOpen = false;
+                autoUpdater.
+                    autoUpdater.quitAndInstall();
+            }
+        });
 });
