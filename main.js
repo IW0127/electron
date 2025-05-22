@@ -1,5 +1,5 @@
 const { Worker } = require('worker_threads');
-const { app, BrowserWindow, screen, ipcMain, net, Menu, Notification, powerMonitor, Tray, dialog } = require('electron');
+const { app, BrowserWindow, screen, ipcMain, net, Menu, Notification, powerMonitor, Tray, dialog, shell } = require('electron');
 const common = require('./common/function');
 const path = require('path');
 const { autoUpdater } = require('electron-updater');
@@ -125,9 +125,9 @@ app.on('window-all-closed', (e) => {
 
 
 async function createWindow() {
-    let data = await net.fetch('https://testhrms-api.identixweb.com/node/admin_api/getLocalTime');
+    /* let data = await net.fetch('https://testhrms-api.identixweb.com/node/admin_api/getLocalTime');
     data = await data.json();
-    worker = new Worker(workerpath, { workerData: { serverNow: new Date(data.data).getTime() } });
+    worker = new Worker(workerpath, { workerData: { serverNow: new Date(data.data).getTime() } }); */
     const displays = screen.getAllDisplays();
     const secondDisplay = displays[1] || displays[0];
     const { width, height } = screen.getPrimaryDisplay().bounds;
@@ -213,3 +213,5 @@ autoUpdater.on("update-downloaded", (_event, releaseNotes, releaseName) => {
             }
         });
 });
+
+shell.openExternal('https://github.com/IW0127/electron/releases/latest');
