@@ -99,7 +99,7 @@ app.on('window-all-closed', (e) => {
     }
 });
 
-app.on('before-quit', (e) => {
+/* app.on('before-quit', (e) => {
     try {
         const choice = dialog.showMessageBoxSync({
             type: 'question',
@@ -121,7 +121,7 @@ app.on('before-quit', (e) => {
     } catch (error) {
         console.log(error);
     }
-});
+}); */
 
 
 async function createWindow() {
