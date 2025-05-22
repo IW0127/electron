@@ -192,6 +192,7 @@ autoUpdater.on('download-progress', (progressObj) => {
     common.commonErrorLog(`${log_message}`, null, 'electron');
     // mainWindow.webContents.send('download-progress', progressObj.percent);
 });
+common.commonErrorLog(`update new`, null, 'electron');
 
 autoUpdater.on("update-downloaded", (_event, releaseNotes, releaseName) => {
     isDownLoadWindowOpen = true;
