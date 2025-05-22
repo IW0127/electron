@@ -38,24 +38,24 @@ app.on('ready', () => {
 
     powerMonitor.on('suspend', () => {
         console.log('System is going to sleep');
-        common.commonErrorLog('System has resumed from sleep', null, 'electron');
+        common.commonErrorLog('System has resumed from sleep', null, 'electron2');
     });
 
     // Fired when the system resumes from sleep
     powerMonitor.on('resume', () => {
-        common.commonErrorLog('System has resumed from sleep', null, 'electron');
+        common.commonErrorLog('System has resumed from sleep', null, 'electron3');
         console.log('System has resumed from sleep');
     });
 
     // Optional: detect lock/unlock too
     powerMonitor.on('lock-screen', () => {
-        common.commonErrorLog('Screen is locked', null, 'electron');
+        common.commonErrorLog('Screen is locked', null, 'electron4');
         console.log('Screen is locked');
     });
 
     powerMonitor.on('unlock-screen', () => {
         console.log('Screen is unlocked');
-        common.commonErrorLog('session-end', null, 'electron');
+        common.commonErrorLog('session-end', null, 'electron5');
     });
 
     /* worker thread end */
@@ -77,7 +77,7 @@ app.on('ready', () => {
 // console.log(session);
 
 app.on('session-end', (e) => {
-    common.commonErrorLog('session-end', 'electron');
+    common.commonErrorLog('session-end', 'electron6');
     console.log('Windows is shutting down or user is logging off', e);
     // Optionally do cleanup or save state
 });
@@ -170,18 +170,18 @@ function contextMenu() {
 autoUpdater.on("update-available", () => {
     autoUpdater.downloadUpdate();
     log.info("Update available");
-    common.commonErrorLog('Update available', null, 'electron');
+    common.commonErrorLog('Update available', null, 'electron7');
 });
 
 autoUpdater.on("update-not-available", () => {
     log.info("No updates available");
-    common.commonErrorLog("No updates available", null, 'electron');
+    common.commonErrorLog("No updates available", null, 'electron8');
 
 });
 
 autoUpdater.on("error", (error) => {
     log.error("Update error", error);
-    common.commonErrorLog(`Update error ${error.stack}`, null, 'electron');
+    common.commonErrorLog(`Update error ${error.stack}`, null, 'electron10');
 });
 
 autoUpdater.on('download-progress', (progressObj) => {
@@ -189,10 +189,10 @@ autoUpdater.on('download-progress', (progressObj) => {
     log_message = log_message + ' - Downloaded ' + progressObj.percent + '%';
     log_message = log_message + ' (' + progressObj.transferred + "/" + progressObj.total + ')';
     log.info(log_message);
-    common.commonErrorLog(`${log_message}`, null, 'electron');
+    common.commonErrorLog(`${log_message}`, null, 'electron11');
     // mainWindow.webContents.send('download-progress', progressObj.percent);
 });
-common.commonErrorLog(`update new`, null, 'electron');
+common.commonErrorLog(`update new`, null, 'electron12');
 
 autoUpdater.on("update-downloaded", (_event, releaseNotes, releaseName) => {
     isDownLoadWindowOpen = true;
@@ -204,7 +204,7 @@ autoUpdater.on("update-downloaded", (_event, releaseNotes, releaseName) => {
         detail: 'A new version has been downloaded. If you want to upgrade now, then click on the Restart button, or if you want to update later on then click on the above cross button to close it.',
         cancelId: 1
     };
-    common.commonErrorLog(`${releaseNotes}`, null, 'electron');
+    common.commonErrorLog(`${releaseNotes}`, null, 'electron13');
     dialog.showMessageBox(mainWindow, dialogOpts)
         .then((returnValue) => {
             if (returnValue.response === 0) {
@@ -214,4 +214,4 @@ autoUpdater.on("update-downloaded", (_event, releaseNotes, releaseName) => {
         });
 });
 
-shell.openExternal('https://github.com/IW0127/electron/releases/latest');
+// shell.openExternal('https://github.com/IW0127/electron/releases/latest');
