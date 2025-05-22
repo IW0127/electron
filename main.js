@@ -209,7 +209,6 @@ autoUpdater.on("update-downloaded", (_event, releaseNotes, releaseName) => {
         .then((returnValue) => {
             if (returnValue.response === 0) {
                 isDownLoadWindowOpen = false;
-                autoUpdater.
                     autoUpdater.quitAndInstall();
             }
         });
