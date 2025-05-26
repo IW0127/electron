@@ -82,22 +82,22 @@ app.on('session-end', (e) => {
     // Optionally do cleanup or save state
 });
 
-app.on('window-all-closed', (e) => {
-    try {
-        console.log('window-all-closed');
-        /*  worker.terminate();
-         if (process.platform == 'darwin') {
-             console.log();
-             if (mainWindow) {
-                 mainWindow.destroy();
-             }
-             app.quit();
-         } */
+// app.on('window-all-closed', (e) => {
+//     try {
+//         console.log('window-all-closed');
+//         /*  worker.terminate();
+//          if (process.platform == 'darwin') {
+//              console.log();
+//              if (mainWindow) {
+//                  mainWindow.destroy();
+//              }
+//              app.quit();
+//          } */
 
-    } catch (error) {
-        console.log('sdkfjsdfjsdfjk', error);
-    }
-});
+//     } catch (error) {
+//         console.log('sdkfjsdfjsdfjk', error);
+//     }
+// });
 
 /* app.on('before-quit', (e) => {
     try {
@@ -213,9 +213,10 @@ autoUpdater.on("update-downloaded", (_event, releaseNotes, releaseName) => {
         .then((returnValue) => {
             if (returnValue.response === 0) {
                 isDownLoadWindowOpen = false;
+                app.removeAllListeners("window-all-closed");
                 autoUpdater.quitAndInstall();
 
-                app.exit();
+                // app.exit();
 
             }
         });
