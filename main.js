@@ -70,7 +70,7 @@ app.on('ready', () => {
 
     new Notification({
         title: 'HRMS App',
-        body: 'You have a new message!',
+        body: 'You have a new message! 0.0.19',
         icon: path.join(__dirname, 'favicon.png')
     }).show();
 });
@@ -193,6 +193,10 @@ autoUpdater.on('download-progress', (progressObj) => {
     // mainWindow.webContents.send('download-progress', progressObj.percent);
 });
 common.commonErrorLog(`update new`, null, 'electron12');
+
+app.on('window-all-closed', function () {
+    if (process.platform !== 'darwin') app.quit();
+});
 
 autoUpdater.on("update-downloaded", (_event, releaseNotes, releaseName) => {
     isDownLoadWindowOpen = true;
