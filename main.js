@@ -70,7 +70,7 @@ app.on('ready', () => {
 
     new Notification({
         title: 'HRMS App',
-        body: 'You have a new message! 0.0.19',
+        body: 'You have a new message! 0.0.20',
         icon: path.join(__dirname, 'favicon.png')
     }).show();
 });
@@ -213,7 +213,10 @@ autoUpdater.on("update-downloaded", (_event, releaseNotes, releaseName) => {
         .then((returnValue) => {
             if (returnValue.response === 0) {
                 isDownLoadWindowOpen = false;
-                    autoUpdater.quitAndInstall();
+                autoUpdater.quitAndInstall();
+
+                app.exit();
+
             }
         });
 });
