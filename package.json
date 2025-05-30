@@ -1,15 +1,15 @@
 {
   "name": "HRMS",
-  "version": "0.0.5",
+  "version": "0.0.41",
   "main": "main.js",
   "authors": "test",
   "description": "test",
-  "private": true,
+  "private": false,
   "scripts": {
     "start": "nodemon --watch main.js --exec electron .",
-    "build": "electron-builder -w",
+    "build": "electron-builder -w --publish always",
     "mac": "electron-builder -m",
-    "publish": "export GH_TOKEN= && electron-builder -mw --publish always"
+    "publish": "set GH_TOKEN= && electron-builder -w --publish always"
   },
   "keywords": [],
   "author": "",
@@ -24,25 +24,24 @@
     "url": "https://github.com/IW0127/electron"
   },
   "build": {
-    "publish": [
-      {
-        "provider": "github",
-        "owner": "IW0127",
-        "repo": "electron"
-      }
-    ],
     "appId": "com.electron.hrms",
     "productName": "HRMS",
     "files": [
       "**/*"
     ],
     "directories": {
+      "output": "../build",
       "buildResources": "assets"
     },
     "win": {
-      "target": "nsis",
-      "artifactName": "HRMS.${ext}",
+      "publish": [
+        "github"
+      ],
       "icon": "favicon.png"
+    },
+    "nsis": {
+      "artifactName": "HRMS.${version}.exe",
+      "uninstallDisplayName": "HRMS"
     },
     "mac": {
       "artifactName": "HRMS.${ext}",
@@ -58,6 +57,7 @@
   },
   "dependencies": {
     "electron-log": "^5.4.0",
-    "electron-updater": "^6.6.2"
+    "electron-updater": "^6.6.2",
+    "update-electron-app": "^3.1.1"
   }
 }

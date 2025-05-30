@@ -1,5 +1,5 @@
-const { Worker } = require('worker_threads');
-const { app, BrowserWindow, screen, ipcMain, net, Menu, Notification, powerMonitor, Tray, dialog, shell } = require('electron');
+// const { Worker } = require('worker_threads');
+const { app, BrowserWindow, screen, ipcMain, net, Menu, Notification, powerMonitor, Tray, dialog, shell, nativeImage } = require('electron');
 const common = require('./common/function');
 const path = require('path');
 const { autoUpdater } = require('electron-updater');
@@ -14,10 +14,13 @@ let tray;
 let isDownLoadWindowOpen = false;
 
 const filePath = `${__dirname}/common`;
-const workerpath = path.join(filePath, 'timer-worker.js');
+// const workerpath = path.join(filePath, 'timer-worker.js');
 app.setAppUserModelId('HRMS');
 
 app.on('ready', () => {
+    // Check for updates every 30 minutes
+
+    // Initial check for updates
     autoUpdater.checkForUpdatesAndNotify();
     /* worker thread start */
     (async () => {
@@ -66,13 +69,7 @@ app.on('ready', () => {
         if (BrowserWindow.getAllWindows().length === 0) createWindow();
     });
 
-
-
-    new Notification({
-        title: 'HRMS App',
-        body: 'You have a new message! 0.0.20',
-        icon: path.join(__dirname, 'favicon.png')
-    }).show();
+    showNotification('HRMS App', `You have a new message! ${autoUpdater.currentVersion}`, 'normal', true);
 });
 // console.log(session);
 
@@ -149,8 +146,11 @@ async function createWindow() {
     mainWindow.webContents.openDevTools();
     mainWindow.on('close', (event) => {
         console.log('Window closed', event);
-        event.preventDefault(); // Prevent the default close action
-        mainWindow.hide(); // Hide the window instead
+        // Only prevent close if it's not for update installation
+        if (!isDownLoadWindowOpen) {
+            event.preventDefault(); // Prevent the default close action
+            mainWindow.hide(); // Hide the window instead
+        }
     });
     contextMenu();
     app.setLoginItemSettings({ openAtLogin: true });
@@ -159,29 +159,56 @@ async function createWindow() {
 function contextMenu() {
     tray = new Tray(path.join(__dirname, 'icon', process.platform === 'win32' ? 'tray_icon.ico' : 'tray_icon_22x22.png'));
     const menu = Menu.buildFromTemplate([
-        { label: 'Open', click: () => mainWindow ? mainWindow.show() : createWindow() },
+        {
+            label: 'Open', click: () => {
+                autoUpdater.checkForUpdatesAndNotify();
+                mainWindow ? mainWindow.show() : createWindow();
+            }
+        },
         { label: 'Quit', click: () => { mainWindow.destroy(); app.quit(); } },
     ]);
     tray.on('click', () => mainWindow.isVisible() ? mainWindow.hide() : mainWindow.show());
     tray.on('right-click', (_e, bounds) => tray.popUpContextMenu(menu, { x: bounds.x, y: bounds.y - 30 }));
 }
 
+// Add notification helper function
+function showNotification(title, body, urgency = 'normal', playSound = true) {
+    // Default to favicon.png which we know exists
+    console.log(Notification.isSupported());
+    if (Notification.isSupported()) {
+        let iconPath = path.join(__dirname, 'favicon.png');
 
-autoUpdater.on("update-available", () => {
-    autoUpdater.downloadUpdate();
-    log.info("Update available");
-    common.commonErrorLog('Update available', null, 'electron7');
+        const notification = new Notification({
+            title: title,
+            body: body,
+            icon: nativeImage.createFromPath(iconPath),
+            urgency: urgency, // 'normal', 'critical', or 'low'
+        });
+
+        notification.show();
+        return notification;
+    }
+}
+
+autoUpdater.on("update-available", (info) => {
+    log.info("Update available", info);
+    common.commonErrorLog('Update available: ' + info.version, null, 'electron7');
+
+    // Show notification to user with sound
+    showNotification('Update Available', `A new version ${info.version} is available and will be downloaded automatically.`, 'normal', true);
 });
 
-autoUpdater.on("update-not-available", () => {
-    log.info("No updates available");
+autoUpdater.on("update-not-available", (info) => {
+    log.info("No updates available", info);
     common.commonErrorLog("No updates available", null, 'electron8');
-
 });
 
 autoUpdater.on("error", (error) => {
     log.error("Update error", error);
-    common.commonErrorLog(`Update error ${error.stack}`, null, 'electron10');
+    common.commonErrorLog(`Update error: ${error.message}`, null, 'electron10');
+
+    // Show error notification to user with sound
+    showNotification('Update Error', `Failed to check for updates: ${error.message}`, 'critical', true);
 });
 
 autoUpdater.on('download-progress', (progressObj) => {
@@ -189,37 +216,29 @@ autoUpdater.on('download-progress', (progressObj) => {
     log_message = log_message + ' - Downloaded ' + progressObj.percent + '%';
     log_message = log_message + ' (' + progressObj.transferred + "/" + progressObj.total + ')';
     log.info(log_message);
-    common.commonErrorLog(`${log_message}`, null, 'electron11');
-    // mainWindow.webContents.send('download-progress', progressObj.percent);
-});
-common.commonErrorLog(`update new`, null, 'electron12');
-
-app.on('window-all-closed', function () {
-    if (process.platform !== 'darwin') app.quit();
+    if (mainWindow && !mainWindow.isDestroyed()) {
+        mainWindow.setProgressBar(progressObj.percent / 100);
+    }
 });
 
 autoUpdater.on("update-downloaded", (_event, releaseNotes, releaseName) => {
     isDownLoadWindowOpen = true;
     const dialogOpts = {
         type: 'info',
-        buttons: ['Restart'],
+        buttons: ['Restart Now'],
         title: 'Application Update',
-        message: process.platform === 'win32' ? releaseNotes : releaseName,
-        detail: 'A new version has been downloaded. If you want to upgrade now, then click on the Restart button, or if you want to update later on then click on the above cross button to close it.',
+        message: 'A new version has been downloaded',
+        detail: 'Please restart the application to apply the updates.',
         cancelId: 1
     };
-    common.commonErrorLog(`${releaseNotes}`, null, 'electron13');
+
     dialog.showMessageBox(mainWindow, dialogOpts)
         .then((returnValue) => {
             if (returnValue.response === 0) {
                 isDownLoadWindowOpen = false;
-                app.removeAllListeners("window-all-closed");
-                autoUpdater.quitAndInstall();
-
-                // app.exit();
-
+                app.removeAllListeners('window-all-closed');
+                autoUpdater.quitAndInstall(false, true);
             }
         });
 });
-
 // shell.openExternal('https://github.com/IW0127/electron/releases/latest');
