@@ -12,7 +12,7 @@ let worker;
 let mainWindow;
 let tray;
 let isDownLoadWindowOpen = false;
-
+let quitApp = false;
 const filePath = `${__dirname}/common`;
 // const workerpath = path.join(filePath, 'timer-worker.js');
 app.setAppUserModelId('HRMS');
@@ -111,9 +111,8 @@ app.on('before-quit', (e) => {
             e.preventDefault(); // Cancel quit
 
         } else {
-            if (mainWindow) {
-                mainWindow.destroy();
-            }
+            quitApp = true;
+            // process.exit(0);
         }
     } catch (error) {
         console.log('sdfsdfsdf', error);
@@ -143,11 +142,11 @@ async function createWindow() {
     });
     mainWindow.loadURL('https://testhrms.identixweb.com');
     // mainWindow.loadURL('http://localhost:3001');
-    mainWindow.webContents.openDevTools();
+    // mainWindow.webContents.openDevTools();
     mainWindow.on('close', (event) => {
         console.log('Window closed', event);
         // Only prevent close if it's not for update installation
-        if (!isDownLoadWindowOpen) {
+        if (!isDownLoadWindowOpen && !quitApp) {
             event.preventDefault(); // Prevent the default close action
             mainWindow.hide(); // Hide the window instead
         }
@@ -165,14 +164,14 @@ function contextMenu() {
                 mainWindow ? mainWindow.show() : createWindow();
             }
         },
-        { label: 'Quit', click: () => { mainWindow.destroy(); app.quit(); } },
+        { label: 'Quit', click: () => { quitApp = true; app.quit(); } },
     ]);
     tray.on('click', () => mainWindow.isVisible() ? mainWindow.hide() : mainWindow.show());
     tray.on('right-click', (_e, bounds) => tray.popUpContextMenu(menu, { x: bounds.x, y: bounds.y - 30 }));
 }
 
 // Add notification helper function
-function showNotification(title, body, urgency = 'normal', playSound = true) {
+function showNotification(title, body, urgency = 'normal') {
     // Default to favicon.png which we know exists
     console.log(Notification.isSupported());
     if (Notification.isSupported()) {
