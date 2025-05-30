@@ -96,7 +96,7 @@ app.on('session-end', (e) => {
 //     }
 // });
 
-/* app.on('before-quit', (e) => {
+app.on('before-quit', (e) => {
     try {
         const choice = dialog.showMessageBoxSync({
             type: 'question',
@@ -105,20 +105,20 @@ app.on('session-end', (e) => {
             title: 'Quit App',
             message: 'Are you sure you want to quit the app?'
         });
+        console.log("🚀 ~ app.on ~ choice:", choice);
+        console.log("🚀 ~ app.on ~ isDownLoadWindowOpen:", isDownLoadWindowOpen);
         if (choice === 0 && !isDownLoadWindowOpen) {
             e.preventDefault(); // Cancel quit
+
         } else {
-            if (worker) {
-                worker.terminate();
-            }
             if (mainWindow) {
                 mainWindow.destroy();
             }
         }
     } catch (error) {
-        console.log(error);
+        console.log('sdfsdfsdf', error);
     }
-}); */
+});
 
 
 async function createWindow() {
