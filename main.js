@@ -4,9 +4,10 @@ const common = require('./common/function');
 const path = require('path');
 const { autoUpdater } = require('electron-updater');
 const log = require("electron-log");
-
+const semver = require('semver');
+process.env.DEBUG = 'electron-updater';
 autoUpdater.logger = log;
-autoUpdater.logger.transports.file.level = "info";
+autoUpdater.logger.transports.file.level = "debug";
 let worker;
 
 let mainWindow;
@@ -16,8 +17,15 @@ let quitApp = false;
 const filePath = `${__dirname}/common`;
 // const workerpath = path.join(filePath, 'timer-worker.js');
 app.setAppUserModelId('HRMS');
+const version = app.getVersion(); // e.g., "1.2.3-beta.1"
+const prerelease = semver.prerelease(version);
 
+const channel = prerelease ? prerelease[0] : '';
+autoUpdater.channel = channel;
+
+common.commonErrorLog(JSON.stringify({ channel: `${autoUpdater.channel}\n ${channel}`, UPDATE_CHANNEL: process.env.UPDATE_CHANNEL }), null, 'electron channel');
 app.on('ready', () => {
+    autoUpdater.channel = channel;
     // Check for updates every 30 minutes
 
     // Initial check for updates

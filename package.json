@@ -1,6 +1,6 @@
 {
   "name": "HRMS",
-  "version": "0.0.42",
+  "version": "0.0.1-alpha.4",
   "main": "main.js",
   "authors": "test",
   "description": "test",
@@ -9,15 +9,20 @@
     "start": "nodemon --watch main.js --exec electron .",
     "build": "electron-builder -w --publish always",
     "mac": "electron-builder -m",
-    "publish": "set GH_TOKEN= && electron-builder -w --publish always"
+    "publish": "set GH_TOKEN= && electron-builder -w --publish always",
+    "deploy": "node scripts/release.js"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "devDependencies": {
+    "child_process": "^1.0.2",
+    "cross-env": "^7.0.3",
     "electron": "25.3.0",
-    "electron-builder": "24.4.0",
-    "nodemon": "3.1.10"
+    "electron-builder": "^24.13.3",
+    "inquirer": "^8.2.6",
+    "nodemon": "3.1.10",
+    "semver": "^7.7.2"
   },
   "repository": {
     "type": "git",
