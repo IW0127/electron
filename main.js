@@ -19,17 +19,27 @@ const filePath = `${__dirname}/common`;
 app.setAppUserModelId('HRMS');
 const version = app.getVersion(); // e.g., "1.2.3-beta.1"
 const prerelease = semver.prerelease(version);
+const channel = prerelease ? prerelease[0] : 'latest';
 
-const channel = prerelease ? prerelease[0] : '';
+autoUpdater.allowDowngrade = true;
+autoUpdater.allowPrerelease = true;
 autoUpdater.channel = channel;
-
-common.commonErrorLog(JSON.stringify({ channel: `${autoUpdater.channel}\n ${channel}`, UPDATE_CHANNEL: process.env.UPDATE_CHANNEL }), null, 'electron channel');
+common.commonErrorLog(JSON.stringify({ 
+    channel: channel,
+    autoUpdaterChannel: autoUpdater.channel,
+    version: version,
+    isPrerelease: !!prerelease,
+    releaseType: channel === 'latest' ? 'release' : 'prerelease'
+}), null, 'electron channel');
+autoUpdater.setFeedURL({
+    provider: 'github',
+    owner: 'IW0127',
+    repo: 'electron',
+    channel: 'alpha'
+});
 app.on('ready', () => {
-    autoUpdater.channel = channel;
-    // Check for updates every 30 minutes
-
     // Initial check for updates
-    autoUpdater.checkForUpdatesAndNotify();
+    autoUpdater.checkForUpdates();
     /* worker thread start */
     (async () => {
         try {
@@ -201,8 +211,8 @@ autoUpdater.on("update-available", (info) => {
     log.info("Update available", info);
     common.commonErrorLog('Update available: ' + info.version, null, 'electron7');
 
-    // Show notification to user with sound
-    showNotification('Update Available', `A new version ${info.version} is available and will be downloaded automatically.`, 'normal', true);
+    const message = `A new version ${info.version} is available for the ${channel} channel.`;
+    showNotification('Update Available', message, 'normal', true);
 });
 
 autoUpdater.on("update-not-available", (info) => {
@@ -232,9 +242,9 @@ autoUpdater.on("update-downloaded", (_event, releaseNotes, releaseName) => {
     isDownLoadWindowOpen = true;
     const dialogOpts = {
         type: 'info',
-        buttons: ['Restart Now'],
+        buttons: ['Restart Now', 'Later'],
         title: 'Application Update',
-        message: 'A new version has been downloaded',
+        message: `A new version has been downloaded for the ${channel} channel`,
         detail: 'Please restart the application to apply the updates.',
         cancelId: 1
     };

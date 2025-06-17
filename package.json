@@ -1,6 +1,6 @@
 {
   "name": "HRMS",
-  "version": "0.0.1-alpha.4",
+  "version": "0.0.1-alpha.12",
   "main": "main.js",
   "authors": "test",
   "description": "test",
@@ -16,11 +16,11 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "child_process": "^1.0.2",
-    "cross-env": "^7.0.3",
+    "child_process": "1.0.2",
+    "cross-env": "7.0.3",
     "electron": "25.3.0",
-    "electron-builder": "^24.13.3",
-    "inquirer": "^8.2.6",
+    "electron-builder": "24.13.3",
+    "inquirer": "8.2.6",
     "nodemon": "3.1.10",
     "semver": "^7.7.2"
   },
@@ -31,17 +31,15 @@
   "build": {
     "appId": "com.electron.hrms",
     "productName": "HRMS",
+    "generateUpdatesFilesForAllChannels": true,
     "files": [
       "**/*"
     ],
     "directories": {
-      "output": "../build",
+      "output": "../alpha",
       "buildResources": "assets"
     },
     "win": {
-      "publish": [
-        "github"
-      ],
       "icon": "favicon.png"
     },
     "nsis": {
@@ -58,6 +56,12 @@
       "hardenedRuntime": true,
       "gatekeeperAssess": false,
       "icon": "favicon.png"
+    },
+    "publish": {
+      "provider": "github",
+      "owner": "IW0127",
+      "repo": "electron",
+      "releaseType": "release"
     }
   },
   "dependencies": {

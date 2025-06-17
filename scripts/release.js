@@ -1,11 +1,9 @@
-// scripts/release.js
 const inquirer = require('inquirer');
 const { build } = require('electron-builder');
 const { execSync } = require('child_process');
 const semver = require('semver');
 
 (async () => {
-  // Step 1: Ask user for details
   const answers = await inquirer.prompt([
     {
       name: 'githubToken',
@@ -30,12 +28,11 @@ const semver = require('semver');
   process.env.GH_TOKEN = answers.githubToken;
   const channel = answers.channel;
 
-  // Step 2: Get latest version from GitHub
   console.log(`🔍 Fetching latest version from GitHub...`);
-  let latestVersion = '0.0.0'; // Default version if no tags exist
+  let latestVersion = '0.0.0';
   try {
     execSync('git fetch --tags').toString().trim();
-    const rawTagsOutput = execSync(`${channel == 'latest' ? 'git tag --sort=-v:refname | grep -vE "(alpha|beta|rc)"' : `git tag  -l "*${channel}*" --sort=-v:refname`}`).toString().trim();
+    const rawTagsOutput = execSync(`${channel === 'latest' ? 'git tag --sort=-v:refname | grep -vE "(alpha|beta|rc)"' : `git tag -l "*${channel}*" --sort=-v:refname`}`).toString().trim();
     const rawTags = rawTagsOutput ? rawTagsOutput.split('\n') : [];
     const validTags = rawTags.filter(tag => {
       try {
@@ -46,40 +43,47 @@ const semver = require('semver');
     });
 
     if (validTags.length > 0) {
-      const latestTag = validTags[0]; // Most recent valid semver tag
+      const latestTag = validTags[0];
       latestVersion = semver.clean(latestTag) || '0.0.0';
     }
-    console.log('✅ All Git Tags:', rawTags);
     console.log('✅ Current Version:', latestVersion);
   } catch (error) {
     console.log('⚠️ No Git tags found, using default version 1.0.0');
   }
 
+  const parsed = semver.parse(latestVersion);
+  let release;
+  if (parsed.minor >= 10) {
+    release = 'major';
+  } else if (parsed.patch >= 10) {
+    release = 'minor';
+  } else {
+    release = 'patch';
+  }
+
   const nextVersion = semver.inc(
     latestVersion,
-    channel === 'latest' ? 'patch' : 'prerelease',
+    channel === 'latest' ? release : 'prerelease',
     answers.versionSuffix || channel
   );
-
   console.log(`📦 Next version will be: ${nextVersion}`);
 
-  // Step 3: Set version in package.json
+  // Update package.json
   const fs = require('fs');
   const pkgPath = './package.json';
   const pkg = JSON.parse(fs.readFileSync(pkgPath, 'utf8'));
   pkg.version = nextVersion;
   fs.writeFileSync(pkgPath, JSON.stringify(pkg, null, 2));
 
-  const config = pkg.build;
-  // Step 4: Publish using electron-builder
+  // Build and publish
   await build({
     publish: 'always',
     config: {
       ...pkg.build,
       publish: {
         provider: 'github',
-        repo: 'IW0127/electron',
         owner: 'IW0127',
+        repo: 'electron',
         releaseType: channel === 'latest' ? 'release' : 'prerelease',
         channel: channel
       }
