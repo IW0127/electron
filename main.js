@@ -18,11 +18,15 @@ const filePath = `${__dirname}/common`;
 // const workerpath = path.join(filePath, 'timer-worker.js');
 app.setAppUserModelId('HRMS');
 const version = app.getVersion(); // e.g., "1.2.3-beta.1"
+log.info("🚀 ~ app.on ~ version:", version);
 const prerelease = semver.prerelease(version);
+log.info("🚀 ~ app.on ~ prerelease:", prerelease);
 const channel = prerelease ? prerelease[0] : 'latest';
+log.info("🚀 ~ app.on ~ channel:", channel);
 
-autoUpdater.allowDowngrade = true;
+// autoUpdater.allowDowngrade = true;
 autoUpdater.allowPrerelease = true;
+autoUpdater.autoDownload = false; // ❌ Prevent auto download
 autoUpdater.channel = channel;
 common.commonErrorLog(JSON.stringify({ 
     channel: channel,
@@ -31,12 +35,7 @@ common.commonErrorLog(JSON.stringify({
     isPrerelease: !!prerelease,
     releaseType: channel === 'latest' ? 'release' : 'prerelease'
 }), null, 'electron channel');
-autoUpdater.setFeedURL({
-    provider: 'github',
-    owner: 'IW0127',
-    repo: 'electron',
-    channel: 'alpha'
-});
+
 app.on('ready', () => {
     // Initial check for updates
     autoUpdater.checkForUpdates();
@@ -208,11 +207,37 @@ function showNotification(title, body, urgency = 'normal') {
 }
 
 autoUpdater.on("update-available", (info) => {
-    log.info("Update available", info);
-    common.commonErrorLog('Update available: ' + info.version, null, 'electron7');
-
-    const message = `A new version ${info.version} is available for the ${channel} channel.`;
-    showNotification('Update Available', message, 'normal', true);
+    log.info("🚀 ~ autoUpdater.on ~ info:", info);
+    const version = info.version || '';
+    log.info("🚀 ~ autoUpdater.on ~ version:", version);
+    const isAlpha = version.includes('alpha');
+    const isBeta = version.includes('beta');
+  
+    let shouldDownload = false;
+  
+    if (channel === 'alpha' && isAlpha) shouldDownload = true;
+    else if (channel === 'beta' && isBeta && !isAlpha) shouldDownload = true;
+    else if (channel === 'latest' && !isAlpha && !isBeta) shouldDownload = true;
+  
+    if (!shouldDownload) {
+      log.info(`Skipping version ${version} — doesn't match current channel: ${channel}`);
+      return;
+    }
+  
+    log.info(`Valid update found for channel ${channel}: ${version}`);
+    showNotification("Update Available", `New version ${version} available for ${channel} channel.`);
+    autoUpdater.downloadUpdate();
+  });
+  
+// Handle no updates
+autoUpdater.on("update-not-available", (info) => {
+  log.info("No update available");
+});
+  
+// Handle update download error
+autoUpdater.on("error", (error) => {
+  log.error("Update error:", error);
+  showNotification("Update Error", `Error checking updates: ${error.message}`, "critical");
 });
 
 autoUpdater.on("update-not-available", (info) => {
