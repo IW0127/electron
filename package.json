@@ -1,6 +1,6 @@
 {
-  "name": "HRMS",
-  "version": "0.0.7-alpha",
+  "name": "hrmsbeta",
+  "version": "0.0.4-beta",
   "main": "main.js",
   "authors": "test",
   "description": "test",
@@ -29,14 +29,14 @@
     "url": "https://github.com/IW0127/electron"
   },
   "build": {
-    "appId": "com.electron.hrms",
-    "productName": "HRMS",
+    "appId": "com.electron.hrms.beta",
+    "productName": "hrms Beta",
     "generateUpdatesFilesForAllChannels": true,
     "files": [
       "**/*"
     ],
     "directories": {
-      "output": "../alpha",
+      "output": "../beta",
       "buildResources": "assets"
     },
     "win": {

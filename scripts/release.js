@@ -116,11 +116,6 @@ const fs = require('fs');
       type: 'list',
       message: 'Select release channel:',
       choices: ['latest', 'beta', 'alpha'],
-    },
-    {
-      name: 'versionSuffix',
-      type: 'input',
-      message: 'Optional: Append custom version suffix (e.g. beta.3, alpha.2):',
     }
   ]);
 
@@ -128,59 +123,106 @@ const fs = require('fs');
   const channel = answers.channel;
 
   console.log(`🔍 Fetching latest version from GitHub...`);
-  let latestVersion = '0.0.0';
-  try {
-    execSync('git fetch --tags').toString().trim();
-    const rawTagsOutput = execSync(
-      channel === 'latest'
-        ? 'git tag --sort=-v:refname | grep -vE "(alpha|beta|rc)"'
-        : `git tag -l "*${channel}*" --sort=-v:refname`
-    ).toString().trim();
+  execSync('git fetch --tags');
 
-    const rawTags = rawTagsOutput ? rawTagsOutput.split('\n') : [];
-    console.log('rawTags', rawTags);
+  const getLatestVersionForChannel = (ch) => {
+    try {
+      const rawTagsOutput = execSync(
+        ch === 'latest'
+          ? 'git tag --sort=-v:refname | grep -vE "(alpha|beta|rc)"'
+          : `git tag -l "*${ch}*" --sort=-v:refname`
+      ).toString().trim();
 
-    const validTags = rawTags.filter(tag => {
-      try {
-        return semver.valid(semver.clean(tag));
-      } catch {
-        return false;
-      }
-    });
+      const rawTags = rawTagsOutput ? rawTagsOutput.split('\n') : [];
 
-    if (validTags.length > 0) {
-      const latestTag = validTags[0];
-      latestVersion = semver.clean(latestTag) || '0.0.0';
+      const validTags = rawTags
+        .map(tag => semver.clean(tag))
+        .filter(tag => semver.valid(tag))
+        .sort(semver.rcompare); // Highest version first
+
+      return validTags[0] || '0.0.0';
+    } catch {
+      return '0.0.0';
     }
-    console.log('✅ Current Version:', latestVersion);
-  } catch (error) {
-    console.log('⚠️ No Git tags found, using default version 1.0.0');
-    latestVersion = '1.0.0';
+  };
+
+  // Check flow rule
+  const alphaVersion = getLatestVersionForChannel('alpha');
+  const betaVersion = getLatestVersionForChannel('beta');
+  const latestStableVersion = getLatestVersionForChannel('latest');
+
+  console.log('\n🔎 Version Flow Check:');
+  console.log(`   alpha  : ${alphaVersion}`);
+  console.log(`   beta   : ${betaVersion}`);
+  console.log(`   latest : ${latestStableVersion}`);
+  console.log('channel:', channel);
+  console.log('semver.lt(betaVersion, alphaVersion):', semver.lt(betaVersion, alphaVersion));
+
+  if (channel === 'beta' && !semver.lt(betaVersion, alphaVersion)) {
+    console.error('❌ Cannot deploy to beta: beta version is not less than alpha.');
+    process.exit(1);
   }
 
-  // Custom increment logic
+  if (channel === 'latest' && !semver.lt(latestStableVersion, betaVersion)) {
+    console.error('❌ Cannot deploy to latest: latest version is not less than beta.');
+    process.exit(1);
+  }
+
+
+  // Get current latest version for this channel
+  let latestVersion = getLatestVersionForChannel(channel);
+  // Increment logic
   const parsed = semver.parse(latestVersion);
   let nextVersion;
 
-  if (parsed.patch >= 9) {
-    parsed.patch = 1;
+  if (parsed.patch >= 10) {
+    parsed.patch = 0;
     parsed.minor += 1;
-    nextVersion = `${parsed.major}.${parsed.minor}.${parsed.patch}`;
   } else {
     parsed.patch += 1;
-    nextVersion = `${parsed.major}.${parsed.minor}.${parsed.patch}`;
+  }
+  
+  if (parsed.minor >= 10) {
+    parsed.minor = 0;
+    parsed.major += 1;
+  }
+  nextVersion = `${parsed.major}.${parsed.minor}.${parsed.patch}`;
+
+  if (channel) {
+    nextVersion += `-${channel}`;
   }
 
-  // If suffix is explicitly provided, add it
-  if (answers.versionSuffix) {
-    nextVersion += `-${answers.versionSuffix}`;
-  }
   console.log(`📦 Next version will be: ${nextVersion}`);
-  
   // Update package.json
   const pkgPath = './package.json';
   const pkg = JSON.parse(fs.readFileSync(pkgPath, 'utf8'));
   pkg.version = nextVersion;
+
+  // Set unique appId, productName, output directory per channel
+  const appIdMap = {
+    latest: 'com.electron.hrms',
+    beta: 'com.electron.hrms.beta',
+    alpha: 'com.electron.hrms.alpha'
+  };
+
+  const productNameMap = {
+    latest: 'hrms',
+    beta: 'hrms Beta',
+    alpha: 'hrms Alpha'
+  };
+
+  const outputDir = `../${channel}`;
+  pkg.name = 'hrms' + channel;
+  pkg.build = {
+    ...pkg.build,
+    appId: appIdMap[channel],
+    productName: productNameMap[channel],
+    directories: {
+      output: outputDir,
+      buildResources: 'assets'
+    }
+  };
+
   fs.writeFileSync(pkgPath, JSON.stringify(pkg, null, 2));
 
   // Build and publish

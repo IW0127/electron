@@ -24,6 +24,10 @@ log.info("🚀 ~ app.on ~ prerelease:", prerelease);
 const channel = prerelease ? prerelease[0] : 'latest';
 log.info("🚀 ~ app.on ~ channel:", channel);
 
+// const userDataPath = path.join(app.getPath('appData'), `HRMS-${channel}`);
+// app.setPath('userData', userDataPath);
+// log.info("🚀 ~ app.setPath ~ userData:", userDataPath);
+
 // autoUpdater.allowDowngrade = true;
 autoUpdater.allowPrerelease = true;
 autoUpdater.autoDownload = false; // ❌ Prevent auto download
